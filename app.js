@@ -8,14 +8,14 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use('/', routes);
-app.use('/users', require('./routes/users'));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5d8b8592978f8bd833ca8133' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-  next();
-});
+
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '60a6ed35bfba341fb05996be' // вставьте сюда _id созданного в предыдущем пункте пользователя
+//   };
+//   next();
+// });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
