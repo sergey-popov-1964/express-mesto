@@ -1,25 +1,21 @@
-const express = require('express');
+const express = require('express')
 const bodyParser = require('body-parser');
-const routesUser = require('./routes/users');
-const routesCard = require('./routes/cards');
 const mongoose = require('mongoose');
 const { PORT = 3000 } = process.env;
+
+const routes = require('./routes/index');
 
 const app = express();
 
 app.use(bodyParser.json());
-
 app.use((req, res, next) => {
   req.user = {
-    _id: '60a6ed35bfba341fb05996be' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '60a6ed35bfba341fb05996be'
   };
   next();
 });
-app.use('/', routesUser);
-app.use('/', routesCard);
 
-
-
+app.use(routes);
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
