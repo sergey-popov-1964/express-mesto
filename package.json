@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "`/routes` — папка с файлами роутера  \r `/controllers` — папка с файлами контроллеров пользователя и карточки   \r `/models` — папка с файлами описания схем пользователя и карточки",
   "main": "app.js",
-  "lint": "npx eslint",
+  "lint": "npx eslint ./",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
@@ -25,11 +25,12 @@
     "mongoose": "^5.12.10"
   },
   "devDependencies": {
-    "eslint": "^7.26.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "nodemon": "^2.0.7",
     "body-parser": "^1.19.0",
+    "eslint": "^7.27.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.3",
     "express": "^4.17.1",
-    "mongoose": "^5.12.10"
+    "mongoose": "^5.12.10",
+    "nodemon": "^2.0.7"
   }
 }
