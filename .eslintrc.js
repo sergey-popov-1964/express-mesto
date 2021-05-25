@@ -12,6 +12,6 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
-    "no-underscore-dangle":  ["off", { "allow": ["id"] }]
+    'no-underscore-dangle': ['off', { allow: ['id'] }],
   },
 };

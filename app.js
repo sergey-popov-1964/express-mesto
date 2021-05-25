@@ -3,7 +3,7 @@ const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const {PORT = 3000} = process.env;
+const { PORT = 3000 } = process.env;
 
 const routes = require('./routes/index');
 
@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 
 app.use(routes);
 routes.use((req, res) => {
-  res.status(404).send({message: 'Запрашиваемый ресурс не найден'});
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
