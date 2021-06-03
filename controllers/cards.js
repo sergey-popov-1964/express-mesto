@@ -3,6 +3,7 @@ const Card = require('../models/cards');
 const createCard = (req, res) => {
   const ownerID = req.user._id;
   const {name, link} = req.body;
+  console.log(ownerID)
 
   return Card.create({name, link, owner: ownerID})
     .then((card) => res.status(201).send({data: card}))
@@ -20,28 +21,25 @@ const getAllCards = (req, res) => Card.find({})
 
 const deleteCard = (req, res) => {
   const {cardId} = req.params;
-  const ownerID = req.user._id;
   return Card.findById(cardId)
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      console.log(card.owner)
-      console.log(ownerID)
-      if (ownerID === card.owner) {
-        return Card.findByIdAndRemove(cardId)
-          .orFail(new Error('NotValidId'))
-          .then((card) => res.status(201).send({data: card}))
-          .catch((err) => {
-            if (err.message === 'NotValidId') {
-              res.status(404).send({message: 'Карточка с указанным _id не найдена'});
-            } else if (err.name === 'CastError') {
-              res.status(400).send({message: 'Переданы некорректные данные'});
-            } else {
-              res.status(500).send({message: err.message});
-            }
-          });
+      if (!card.owner.equals(req.user._id)) {
+        res.status(403).send({message: 'Редактирование/удаление чужих данных запрещено'});
       } else {
-        res.status(400).send({message: 'Чужая карточка'});
+        return Card.findByIdAndRemove(cardId)
+          .then((card) => res.status(201).send({data: card}))
       }
     })
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({message: 'Карточка с указанным _id не найдена'});
+      } else if (err.name === 'CastError') {
+        res.status(400).send({message: 'Переданы некорректные данные'});
+      } else {
+        res.status(500).send({message: err.message});
+      }
+    });
 };
 
 const likeCard = (req, res) => {
