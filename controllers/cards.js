@@ -3,8 +3,8 @@ const Card = require('../models/cards');
 const createCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {name, link} = req.body;
-  return Card.create({name, link, owner: ownerID})
-    .then((card) => res.status(201).send({data: card}))
+  return Card.create({ name, link, owner: ownerID })
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const err = new Error('Переданы некорректные данные при создании карточки');
@@ -16,8 +16,8 @@ const createCard = (req, res, next) => {
 };
 
 const getAllCards = (req, res) => Card.find({})
-  .then((card) => res.status(201).send({data: card}))
-  .catch((err) => res.status(500).send({message: err.message}));
+  .then((card) => res.status(201).send({ data: card }))
+  .catch((err) => res.status(500).send({ message: err.message }));
 
 const deleteCard = (req, res, next) => {
   const {cardId} = req.params;
@@ -30,7 +30,7 @@ const deleteCard = (req, res, next) => {
         next(err);
       } else {
         return Card.findByIdAndRemove(cardId)
-          .then((card) => res.status(201).send({data: card}))
+          .then((card) => res.status(201).send({ data: card }));
       }
     })
     .catch((err) => {
@@ -51,9 +51,9 @@ const deleteCard = (req, res, next) => {
 const likeCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {cardId} = req.params;
-  return Card.findByIdAndUpdate(cardId, {$addToSet: {likes: ownerID}}, {new: true})
+  return Card.findByIdAndUpdate(cardId, {$addToSet: {likes: ownerID}}, {new: true })
     .orFail(new Error('NotValidId'))
-    .then((card) => res.status(201).send({data: card}))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.message === 'NotValidId') {
         const err = new Error('Карточка с указанным _id не найдена');
@@ -72,9 +72,9 @@ const likeCard = (req, res, next) => {
 const dislikeCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {cardId} = req.params;
-  return Card.findByIdAndUpdate(cardId, {$pull: {likes: ownerID}}, {new: true})
+  return Card.findByIdAndUpdate(cardId, {$pull: {likes: ownerID}}, {new: true })
     .orFail(new Error('NotValidId'))
-    .then((card) => res.status(201).send({data: card}))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.message === 'NotValidId') {
         const err = new Error('Переданы некорректные данные для постановки/снятии лайка');

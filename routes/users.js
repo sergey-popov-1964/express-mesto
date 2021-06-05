@@ -1,12 +1,48 @@
 const routesUser = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
+
 const {
   getAllUsers, getUserById, updateProfile, updateAvatar, getCurrentUser,
 } = require('../controllers/users');
 
-routesUser.get('/users', getAllUsers);
-routesUser.get('/users/me', getCurrentUser);
-routesUser.get('/users/:userId', getUserById);
-routesUser.patch('/users/me/', updateProfile);
-routesUser.patch('/users/me/avatar', updateAvatar);
+routesUser.get('/users', celebrate({
+  headers: Joi.object({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getAllUsers);
+
+routesUser.get('/users/me', celebrate({
+  headers: Joi.object({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getCurrentUser);
+
+routesUser.patch('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).required().max(30),
+    about: Joi.string().min(2).required().max(30),
+  }).unknown(true),
+  headers: Joi.object({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), updateProfile);
+
+routesUser.patch('/users/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)/),
+  }).unknown(true),
+  headers: Joi.object({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), updateAvatar);
+
+routesUser.get('/users/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }).unknown(true),
+  headers: Joi.object({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getUserById);
 
 module.exports = routesUser;

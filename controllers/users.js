@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
-const User = require('../models/users');
 const jwt = require('jsonwebtoken');
+const User = require('../models/users');
 
 const getAllUsers = (req, res, next) => User.find({})
   .then((user) => res.status(200).send({data: user}))
@@ -8,21 +8,20 @@ const getAllUsers = (req, res, next) => User.find({})
 
 const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
-    .then(hash => User.create({
+    .then((hash) => User.create({
       name: req.body.name,
       about: req.body.about,
       avatar: req.body.avatar,
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => res.status(200).send({data: user})
-    )
+    .then((user) => res.status(200).send({data: user}))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const err = new Error('Переданы некорректные данные при создании пользователя');
         err.statusCode = 404;
         next(err);
-      } else if (err.name === "MongoError" && err.code === 11000) {
+      } else if (err.name === 'MongoError' && err.code === 11000) {
         const err = new Error('Такой пользователь уже зарегистрирован');
         err.statusCode = 404;
         next(err);
@@ -46,8 +45,7 @@ const getUserById = (req, res, next) => {
         const err = new Error('Переданы некорректные данные');
         err.statusCode = 404;
         next(err);
-      }
-      else {
+      } else {
         next(err);
       }
     });
@@ -102,14 +100,8 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        {_id: user._id},
-        'some-secret-key',
-        {expiresIn: '7d'}
-      );
-      res.send({
-        token
-      });
+      const token = jwt.sign({_id: user._id}, 'some-secret-key', {expiresIn: '7d'});
+      res.send({ token });
     })
     .catch((e) => {
       const err = new Error('Ошибка авторизации11');
@@ -119,7 +111,6 @@ const login = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  console.log('getCurrentUser')
   return User.findById(req.user._id)
     .orFail(new Error('NotValidId'))
     .then((user) => res.status(200).send({data: user}))
