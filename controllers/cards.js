@@ -1,17 +1,17 @@
 const Card = require('../models/cards');
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {name, link} = req.body;
-  console.log(ownerID)
-
   return Card.create({name, link, owner: ownerID})
     .then((card) => res.status(201).send({data: card}))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({message: 'Переданы некорректные данные при создании карточки'});
+        const err = new Error('Переданы некорректные данные при создании карточки');
+        err.statusCode = 400;
+        next(err);
       }
-      return res.status(500).send({message: err.name});
+      next(err);
     });
 };
 
@@ -19,13 +19,15 @@ const getAllCards = (req, res) => Card.find({})
   .then((card) => res.status(201).send({data: card}))
   .catch((err) => res.status(500).send({message: err.message}));
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const {cardId} = req.params;
   return Card.findById(cardId)
     .orFail(new Error('NotValidId'))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
-        res.status(403).send({message: 'Редактирование/удаление чужих данных запрещено'});
+        const err = new Error('Редактирование/удаление чужих данных запрещено');
+        err.statusCode = 404;
+        next(err);
       } else {
         return Card.findByIdAndRemove(cardId)
           .then((card) => res.status(201).send({data: card}))
@@ -33,16 +35,20 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'NotValidId') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена'});
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 404;
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        const err = new Error('Переданы некорректные данные');
+        err.statusCode = 400;
+        next(err);
       } else {
-        res.status(500).send({message: err.message});
+        next(err);
       }
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {cardId} = req.params;
   return Card.findByIdAndUpdate(cardId, {$addToSet: {likes: ownerID}}, {new: true})
@@ -50,16 +56,20 @@ const likeCard = (req, res) => {
     .then((card) => res.status(201).send({data: card}))
     .catch((err) => {
       if (err.message === 'NotValidId') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена'});
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 400;
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные для постановки/снятии лайка'});
+        const err = new Error('Переданы некорректные данные для постановки/снятии лайка');
+        err.statusCode = 400;
+        next(err);
       } else {
-        res.status(500).send({message: err.message});
+        next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {cardId} = req.params;
   return Card.findByIdAndUpdate(cardId, {$pull: {likes: ownerID}}, {new: true})
@@ -67,11 +77,15 @@ const dislikeCard = (req, res) => {
     .then((card) => res.status(201).send({data: card}))
     .catch((err) => {
       if (err.message === 'NotValidId') {
-        res.status(404).send({message: 'Карточка с указанным _id не найдена'});
+        const err = new Error('Переданы некорректные данные для постановки/снятии лайка');
+        err.statusCode = 400;
+        next(err);
       } else if (err.name === 'CastError') {
-        res.status(400).send({message: 'Переданы некорректные данные для постановки/снятии лайка'});
+        const err = new Error('Переданы некорректные данные для постановки/снятии лайка');
+        err.statusCode = 400;
+        next(err);
       } else {
-        res.status(500).send({message: err.message});
+        next(err);
       }
     });
 };
