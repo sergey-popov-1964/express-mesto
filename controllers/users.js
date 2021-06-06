@@ -19,11 +19,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const err = new Error('Переданы некорректные данные при создании пользователя');
-        err.statusCode = 404;
+        err.statusCode = 400;
         next(err);
       } else if (err.name === 'MongoError' && err.code === 11000) {
         const err = new Error('Такой пользователь уже зарегистрирован');
-        err.statusCode = 404;
+        err.statusCode = 409;
         next(err);
       }
       next(err);
@@ -37,13 +37,13 @@ const getUserById = (req, res, next) => {
     .orFail(new Error('NotValidId'))
     .then((user) => res.status(200).send({data: user}))
     .catch((err) => {
-      if (err.message === 'NotValidIda') {
+      if (err.message === 'NotValidId') {
         const err = new Error('Пользователь по указанному _id не найден');
         err.statusCode = 404;
         next(err);
-      } else if (err.name === 'CastErrora') {
+      } else if (err.name === 'CastError') {
         const err = new Error('Переданы некорректные данные');
-        err.statusCode = 404;
+        err.statusCode = 400;
         next(err);
       } else {
         next(err);
@@ -65,7 +65,7 @@ const updateProfile = (req, res, next) => {
         next(err);
       } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         const err = new Error('Переданы некорректные данные при обновлении профиля');
-        err.statusCode = 404;
+        err.statusCode = 400;
         next(err);
       } else {
         next(err);
@@ -121,7 +121,7 @@ const getCurrentUser = (req, res, next) => {
         next(err);
       } else if (err.name === 'ValidationError' || err.name === 'CastError') {
         const err = new Error('Переданы некорректные данные при обновлении профиля');
-        err.statusCode = 404;
+        err.statusCode = 400;
         next(err);
       } else {
         next(err);

@@ -4,7 +4,7 @@ const createCard = (req, res, next) => {
   const ownerID = req.user._id;
   const {name, link} = req.body;
   return Card.create({ name, link, owner: ownerID })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const err = new Error('Переданы некорректные данные при создании карточки');
@@ -26,7 +26,7 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
         const err = new Error('Редактирование/удаление чужих данных запрещено');
-        err.statusCode = 404;
+        err.statusCode = 403;
         next(err);
       } else {
         return Card.findByIdAndRemove(cardId)
@@ -57,7 +57,7 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.message === 'NotValidId') {
         const err = new Error('Карточка с указанным _id не найдена');
-        err.statusCode = 400;
+        err.statusCode = 404;
         next(err);
       } else if (err.name === 'CastError') {
         const err = new Error('Переданы некорректные данные для постановки/снятии лайка');
